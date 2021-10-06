@@ -15,6 +15,7 @@ union Element
 
 void parse();
 Element *elements;
+Element *postfix;
 string exp;
 
 int preced(char ch)
@@ -37,68 +38,71 @@ int preced(char ch)
     }
 }
 
-string inToPost(string infix)
+void inToPost()
 {
-    stack<char> stk;
-    stk.push('#');       //add some extra character to avoid underflow
-    string postfix = ""; //initially the postfix string is empty
-    string::iterator it;
+    stack<Element> stk;
 
-    for (it = infix.begin(); it != infix.end(); it++)
+    Element *pound = new Element; //add some extra character to avoid underflow
+    (*pound).c = '#';
+    stk.push(*pound);
+
+    postfix = new Element[exp.length()]; //initially the postfix string is empty
+    Element *it_infix = elements;
+    Element *it_postfix = postfix;
+
+    for (int j = 0; j < exp.length(); j++)
     {
-        if (isalnum(char(*it)))
-            postfix += *it; //add to postfix when character is letter or number
-        else if (*it == '(')
-            stk.push('(');
-        else if (*it == '^')
-            stk.push('^');
-        else if (*it == ')')
+        if (isdigit((*it_infix).c))
         {
-            while (stk.top() != '#' && stk.top() != '(')
+            *it_postfix = *it_infix; //add to postfix when character is letter or number
+            it_postfix++;
+        }
+        else if ((*it_infix).c == '(')
+        {
+            Element *symbol = new Element;
+            (*symbol).c = '(';
+            stk.push(*symbol);
+        }
+        else if ((*it_infix).c == '^')
+        {
+            Element *symbol = new Element;
+            (*symbol).c = '^';
+            stk.push(*symbol);
+        }
+        else if ((*it_infix).c == ')')
+        {
+            while ((stk.top()).c != '#' && (stk.top()).c != '(')
             {
-                postfix += stk.top(); //store and pop until ( has found
+                *it_postfix = stk.top(); //store and pop until ( has found
+                it_postfix++;
                 stk.pop();
             }
             stk.pop(); //remove the '(' from stack
         }
         else
         {
-            if (preced(*it) > preced(stk.top()))
-                stk.push(*it); //push if precedence is high
+            if (preced((*it_infix).c) > preced((stk.top()).c))
+                stk.push(*it_infix); //push if precedence is high
             else
             {
-                while (stk.top() != '#' && preced(*it) <= preced(stk.top()))
+                while ((stk.top()).c != '#' && preced((*it_infix).c) <= preced(stk.top().c))
                 {
-                    postfix += stk.top(); //store and pop until higher precedence is found
+                    *it_postfix = stk.top(); //store and pop until higher precedence is found
+                    it_postfix++;
                     stk.pop();
                 }
-                stk.push(*it);
+                stk.push(*it_infix);
             }
         }
+        it_infix++;
     }
 
-    while (stk.top() != '#')
+    while (stk.top().c != '#')
     {
-        postfix += stk.top(); //store and pop until stack is not empty.
+        *it_postfix = stk.top(); //store and pop until stack is not empty.
+        it_postfix++;
         stk.pop();
     }
-
-    return postfix;
-}
-
-int main()
-{
-    cout << "Enter expression: ";
-    getline(cin, exp);
-    elements = new Element[exp.length()];
-    parse();
-    cout << (*elements).i - 48 << "\n";
-    elements++;
-    cout << (*elements).c << "\n";
-    elements++;
-    cout << (*elements).i - 48 << "\n";
-
-    cout << "\n";
 }
 void parse() // Place numbers and characters from expression string into array as elements
 {
@@ -127,10 +131,23 @@ void parse() // Place numbers and characters from expression string into array a
         iterator++;
     }
 }
-/*int eval(Element *elements)
+
+int main()
 {
-    Element *start_of_array = elements;
-    while (*elements != NULL)
-    {
-    }
-}*/
+    cout << "Enter expression: ";
+    getline(cin, exp);
+    elements = new Element[exp.length()];
+    parse();
+    inToPost();
+    cout << "Char1: " << (*postfix).c << "\n";
+    postfix++;
+    cout << "Char2: " << (*postfix).c << "\n";
+    postfix++;
+    cout << "Char3: " << (*postfix).c << "\n";
+    postfix++;
+    cout << "Char3: " << (*postfix).c << "\n";
+    postfix++;
+    cout << "Char3: " << (*postfix).c << "\n";
+
+    cout << "\n";
+}

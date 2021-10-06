@@ -3,6 +3,7 @@
         "regex": "cpp",
         "system_error": "cpp",
         "string": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "stack": "cpp"
     }
 }
