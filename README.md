@@ -11,6 +11,7 @@ The program runs through the following steps for each expression:
 Constraints:
 - The numbers can only be integers. No decimals.
 - The output will only be accurate if it is <= 2147483647.
+- Negative numbers are not supported (subtraction is).
 - The operators supported are +, -, *, /, and ^.
 - There is no support for invalid expressions.
 
