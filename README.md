@@ -15,6 +15,7 @@ Constraints:
 - The operators supported are +, -, *, /, and ^.
 - There is no support for invalid expressions.
 
+If I redid the program I would make the functions self-contained instead of using global variables, because I wasn't able to write modular test cases this way. Also, I would make an array of strings (where each string is just one number or operator) rather than an array of Element types. That way I would be able to distinguish characters from integers without a separate corresponding array. It would be more readable and more efficient since ints and strings are both 4 bytes, so not having the extra bool array would save space.
 
 Skills I learned:
 - Pointers
