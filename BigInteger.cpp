@@ -19,6 +19,7 @@ Element *elements;
 bool *elements_is_int;
 Element *postfix;
 bool *postfix_is_int;
+int num_elements;
 string expression;
 
 int preced(char ch)
@@ -139,6 +140,7 @@ void parse() // Place numbers and characters from expressionression string into 
             {
                 j++;
                 n = (n * 10) + charToInt(expression[j]);
+                num_elements--;
             }
             e.i = n;
             is_int = true;
@@ -186,7 +188,7 @@ int eval_postfix()
     Element *it_postfix = postfix;
     bool *it_postfix_int = postfix_is_int;
 
-    for (int j = 0; j < expression.length(); j++)
+    for (int j = 0; j < num_elements; j++)
     {
         if (*it_postfix_int == true)
         {
@@ -208,21 +210,26 @@ int eval_postfix()
     return stk.top();
 }
 
-int main()
+void run()
 {
     cout << "Enter expression: ";
     getline(cin, expression);
     elements = new Element[expression.length()];
     elements_is_int = new bool[expression.length()];
+    num_elements = expression.length();
     parse();
     inToPost();
     int result = eval_postfix();
     cout << "FINAL RESULT = " << result;
-    /*cout << "Char1: " << (*postfix).i << "\n";
-    postfix++;
-    cout << "Char2: " << (*postfix).i << "\n";
-    postfix++;
-    cout << "Char3: " << (*postfix).c << "\n";*/
 
-    cout << "\n";
+    cout << "\nRun again? (Y/N): ";
+    string repeat;
+    getline(cin, repeat);
+    if (tolower(repeat[0]) == 'y')
+        run();
+}
+
+int main()
+{
+    run();
 }

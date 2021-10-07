@@ -5,6 +5,7 @@
         "string": "cpp",
         "iostream": "cpp",
         "stack": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "__locale": "cpp"
     }
 }
