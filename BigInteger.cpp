@@ -1,9 +1,10 @@
-#include <iostream>;
-#include <iterator>;
-#include <regex>;
-#include <vector>;
-#include <stack>;
-#include <locale>;
+#include <iostream>
+#include <iterator>
+#include <regex>
+#include <vector>
+#include <stack>
+#include <locale>
+#include <math.h>
 
 using namespace std;
 
@@ -15,8 +16,10 @@ union Element
 
 void parse();
 Element *elements;
+bool *elements_is_int;
 Element *postfix;
-string exp;
+bool *postfix_is_int;
+string expression;
 
 int preced(char ch)
 {
@@ -46,16 +49,21 @@ void inToPost()
     (*pound).c = '#';
     stk.push(*pound);
 
-    postfix = new Element[exp.length()]; //initially the postfix string is empty
+    postfix = new Element[expression.length()]; //initially the postfix string is empty
+    postfix_is_int = new bool[expression.length()];
     Element *it_infix = elements;
+    bool *it_infix_int = elements_is_int;
     Element *it_postfix = postfix;
+    bool *it_postfix_int = postfix_is_int;
 
-    for (int j = 0; j < exp.length(); j++)
+    for (int j = 0; j < expression.length(); j++)
     {
-        if (isdigit((*it_infix).c))
+        if (*it_infix_int == true)
         {
             *it_postfix = *it_infix; //add to postfix when character is letter or number
+            *it_postfix_int = *it_infix_int;
             it_postfix++;
+            it_postfix_int++;
         }
         else if ((*it_infix).c == '(')
         {
@@ -74,12 +82,14 @@ void inToPost()
             while ((stk.top()).c != '#' && (stk.top()).c != '(')
             {
                 *it_postfix = stk.top(); //store and pop until ( has found
+                *it_postfix_int = false;
                 it_postfix++;
+                it_postfix_int++;
                 stk.pop();
             }
             stk.pop(); //remove the '(' from stack
         }
-        else
+        else if ((*it_infix).c != '\0')
         {
             if (preced((*it_infix).c) > preced((stk.top()).c))
                 stk.push(*it_infix); //push if precedence is high
@@ -89,12 +99,15 @@ void inToPost()
                 {
                     *it_postfix = stk.top(); //store and pop until higher precedence is found
                     it_postfix++;
+                    *it_postfix_int = false;
+                    it_postfix_int++;
                     stk.pop();
                 }
                 stk.push(*it_infix);
             }
         }
         it_infix++;
+        it_infix_int++;
     }
 
     while (stk.top().c != '#')
@@ -104,50 +117,112 @@ void inToPost()
         stk.pop();
     }
 }
-void parse() // Place numbers and characters from expression string into array as elements
+
+int charToInt(char c)
 {
-    //Element *elements = new Element[exp.length()];
+    return (c - 48);
+}
+
+void parse() // Place numbers and characters from expressionression string into array as elements
+{
+    //Element *elements = new Element[expression.length()];
     Element *iterator = elements;
-    for (int j = 0; j < exp.length(); j++)
+    bool *type_iterator = elements_is_int;
+    for (int j = 0; j < expression.length(); j++)
     {
         Element e;
-        if (isdigit(exp[j])) // If the number is multiple digits, add the whole number to the array as a single element
+        bool is_int;
+        if (isdigit(expression[j])) // If the number is multiple digits, add the whole number to the array as a single element
         {
-            int n = exp[j];
-            while (isdigit(exp[j + 1]))
+            int n = charToInt(expression[j]);
+            while (isdigit(expression[j + 1]))
             {
                 j++;
-                n = (n * 10) + exp[j];
+                n = (n * 10) + charToInt(expression[j]);
             }
-            //cout << "Number: " << n << "\n";
             e.i = n;
+            is_int = true;
         }
         else // If the character is not a number, add it to the array
         {
-            e.c = exp[j];
+            e.c = expression[j];
+            is_int = false;
         }
         *iterator = e;
-        //cout << "Value at iterator = " << (*iterator).i;
+        *type_iterator = is_int;
         iterator++;
+        type_iterator++;
     }
+}
+
+int apply_operator(int x, int y, char op)
+{
+    switch (op)
+    {
+    case '+':
+        return x + y;
+        break;
+    case '-':
+        return x - y;
+        break;
+    case '*':
+        return x * y;
+        break;
+    case '/':
+        return x / y;
+        break;
+    case '^':
+        return pow(x, y);
+        break;
+    default:
+        return 0;
+    }
+}
+
+int eval_postfix()
+{
+    stack<int> stk;
+
+    Element *it_postfix = postfix;
+    bool *it_postfix_int = postfix_is_int;
+
+    for (int j = 0; j < expression.length(); j++)
+    {
+        if (*it_postfix_int == true)
+        {
+            stk.push((*it_postfix).i);
+        }
+        else
+        {
+            int second_term = stk.top();
+            stk.pop();
+            int first_term = stk.top();
+            stk.pop();
+            char op = (*it_postfix).c;
+            int result = apply_operator(first_term, second_term, op);
+            stk.push(result);
+        }
+        it_postfix++;
+        it_postfix_int++;
+    }
+    return stk.top();
 }
 
 int main()
 {
     cout << "Enter expression: ";
-    getline(cin, exp);
-    elements = new Element[exp.length()];
+    getline(cin, expression);
+    elements = new Element[expression.length()];
+    elements_is_int = new bool[expression.length()];
     parse();
     inToPost();
-    cout << "Char1: " << (*postfix).c << "\n";
+    int result = eval_postfix();
+    cout << "FINAL RESULT = " << result;
+    /*cout << "Char1: " << (*postfix).i << "\n";
     postfix++;
-    cout << "Char2: " << (*postfix).c << "\n";
+    cout << "Char2: " << (*postfix).i << "\n";
     postfix++;
-    cout << "Char3: " << (*postfix).c << "\n";
-    postfix++;
-    cout << "Char3: " << (*postfix).c << "\n";
-    postfix++;
-    cout << "Char3: " << (*postfix).c << "\n";
+    cout << "Char3: " << (*postfix).c << "\n";*/
 
     cout << "\n";
 }

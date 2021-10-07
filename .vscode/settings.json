@@ -4,6 +4,7 @@
         "system_error": "cpp",
         "string": "cpp",
         "iostream": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "istream": "cpp"
     }
 }
