@@ -15,11 +15,4 @@ Constraints:
 - The operators supported are +, -, *, /, and ^.
 - There is no support for invalid expressions.
 
-If I redid the program I would make the functions self-contained instead of using global variables, because I wasn't able to write modular test cases this way. Also, I would make an array of strings (where each string is just one number or operator) rather than an array of Element types. That way I would be able to distinguish characters from integers without a separate corresponding array. It would be more readable and more efficient since ints and strings are both 4 bytes, so not having the extra bool array would save space.
-
-Skills I learned:
-- Pointers
-- Unions
-- Stacks in C++
-- Return type constraints in C++
-- Debugging in VS Code
+If I redid the program I would make the functions self-contained instead of using global variables, because I wasn't able to write modular test cases this way. Also, I would nix the parse() and inToPost() functions in favor of just passing the input string to the postfix evaluator. The reason I had wanted to separate numbers and operations into elements was to keep multi-digit numbers in tact. However, I believe that it would be easier to have a short helper function to check the next characters in the string for multiple digits. This would make checking the type of character (number or operator) easier because there is no distinction in the union. This would also be more readable and more efficient since ints and strings are both 4 bytes, so not having the extra bool array would save space.
